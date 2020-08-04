@@ -2,19 +2,25 @@ import random
 
 
 class Game:
-    """Represents a game of Mastermind"""
+    """Represents a game of Mastermind."""
+
 
     def __init__(self, guesses=8):
         """Creates a new Game with the specified number of guesses available for the player."""
-        self.guesses = guesses
-        self.code = Code()
+        self._pegs = ['R', 'Y', 'G', 'B', 'W', 'K']  # Available colors for the Mastermind pegs
+        self.guesses = guesses                       # Number of guesses currently available
+        self.code = [random.choice(self._pegs),      # Array that represents the code (four colored pegs in order)
+                     random.choice(self._pegs),
+                     random.choice(self._pegs),
+                     random.choice(self._pegs)]
 
     def get_code(self):
         """Returns a string representing the current code"""
-        return self.code.get_code()
+        return self.code[0] + self.code[1] + self.code[2] + self.code[3]
 
     def make_guess(self, guess):
         """Takes a guess and returns a code representing how many pegs are correct.
+        Also decrements self.guesses.
 
         Args:
             guess:  A four-letter string representing a Mastermind guess, example: "RYGB"
@@ -37,26 +43,21 @@ class Game:
                 Empty string: Guess is entirely wrong (no pegs are the right color)
         """
 
+        matched = [False, False, False, False]
+        correct = 0
+        partial = 0
 
-class Code:
-    """Represents a Mastermind code to be guessed"""
+        for position, char in enumerate(guess):
+            print(position, char)
+            if char in self.code:   # TODO YOU ARE HERE
+                print(char)
 
-    def __init__(self):
-        pegs = ['R', 'Y', 'G', 'B', 'W', 'K']
-        self.code = [random.choice(pegs),
-                     random.choice(pegs),
-                     random.choice(pegs),
-                     random.choice(pegs)]
-
-    def get_code(self):
-        """Returns a string representing the current code"""
-        return self.code[0] + ' ' + self.code[1] + ' ' + self.code[2] + ' ' + self.code[3]
+        self.guesses -= 1
 
 
-def main():
-    """Runs the Mastermind Game
+def print_game_intro():
+    """Prints the game intro text with instructions."""
 
-    """
     print("Welcome to Mastermind! A new code has been generated for you to guess.")
     print("Each code has four colored pegs, in order. The colors are:")
     print("R = Red, Y = Yellow, G = Green, B = Blue, W = White, K = Black.")
@@ -68,13 +69,21 @@ def main():
     print("For example, the code \"XXO\" means that two pegs are positioned correctly, and one peg is the right")
     print("color, but in the wrong position. Good luck!")
     print()
-    guess = input("Type four letters to enter your guess (Example: RYGB):").upper()
+
+
+def main():
+    """Runs the Mastermind Game"""
+
+    print_game_intro()
 
     game1 = Game()
+    guess = input("Type four letters to enter your guess (Example: RYGB):").upper()
+    game1.make_guess(guess)
+
     print(game1.get_code())
 
     print()
-    print(guess)
+
 
 
 if __name__ == '__main__':
