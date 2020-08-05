@@ -4,17 +4,20 @@ import random
 class Game:
     """Represents a game of Mastermind."""
 
-    def __init__(self, guesses=8):
+    def __init__(self, guesses=8, code=None):
         """Creates a new Game with the specified number of guesses available for the player."""
 
         self._game_state = "UNFINISHED"                 # Possible game states: UNFINISHED, WON, LOST
 
         self._colors = ['R', 'Y', 'G', 'B', 'W', 'K']   # Colors available for the game
 
-        self.code = [random.choice(self._colors),       # Create the random code for this game
-                     random.choice(self._colors),
-                     random.choice(self._colors),
-                     random.choice(self._colors)]
+        if code is None:
+            self.code = [random.choice(self._colors),   # Create the random code for this game
+                         random.choice(self._colors),
+                         random.choice(self._colors),
+                         random.choice(self._colors)]
+        else:
+            self.code = code
 
         self.guesses = guesses                          # Number of guesses currently available
 
@@ -26,9 +29,8 @@ class Game:
         """Returns the current game state ('UNFINISHED', 'WON', or 'LOST')"""
         return self._game_state
 
-    def make_guess(self, guess):
-        """Takes a guess and returns a code representing how many pegs are correct.
-        Also decrements self.guesses.
+    def check(self, guess):
+        """Checks to see whether a guess is correct, or partially correct. Decrements self.guesses.
 
         Args:
             guess:  A four-letter string representing a Mastermind guess, example: "RYGB"
@@ -53,28 +55,26 @@ class Game:
 
         # Store the positions of each peg in the code
         # As pegs are guessed, positions will be removed from this index (so they are not used twice)
-        positions = {
-            'R': [],
-            'Y': [],
-            'G': [],
-            'B': [],
-            'W': [],
-            'K': []
-        }
-
-        for i in range(len(self.code)):
-            positions[self.code[i]].append(i)
 
         correct = 0
         partial = 0
 
+        leftover_guess = []
+        leftover_code = []
+
         # Calculate how many pegs have been guessed correctly
         for position, char in enumerate(guess):
-            if position in positions[char]:    # Peg is completely correct
+            if self.code[position] == char:    # Peg is completely correct
                 correct += 1
-                positions[char].remove(position)
-            elif len(positions[char]) > 0:     # Peg is correct color, but in the wrong place
+            else:
+                leftover_guess.append(char)
+                leftover_code.append(self.code[position])
+
+        # Go over the leftovers to find partially correct guesses
+        for char in leftover_guess:
+            if char in leftover_code:
                 partial += 1
+                leftover_code.remove(char)
 
         if correct == 0 and partial == 0:
             print("No pegs were guessed correctly.")
@@ -83,6 +83,15 @@ class Game:
             print(results)
 
         self.guesses -= 1
+
+    def is_valid_guess(self, guess):
+        """Checks to see if the guess is valid (correct length, with only valid letters)"""
+        if len(guess) != 4:
+            return False
+        for char in guess:
+            if char not in self._colors:
+                return False
+        return True
 
 
 def print_game_intro():
@@ -115,9 +124,12 @@ def main():
     while game1.get_game_state() == 'UNFINISHED':
         print()
         guess = input("Type four letters to enter your guess (Example: RYGB):").upper()
-        game1.make_guess(guess)
-        print(str(game1.guesses) + " guesses left.")
+        while not game1.is_valid_guess(guess):
+            print("Your guess must be four letters from the following list: R, Y, G, B, W, K.")
+            guess = input("Try guessing again (Example guesses: RYGB, BBYY, YRWK): ")
 
+        game1.check(guess)
+        print(str(game1.guesses) + " guesses left.")
 
     print()
 
