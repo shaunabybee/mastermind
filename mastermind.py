@@ -36,7 +36,7 @@ class Game:
         Prints out feedback for the player, then updates the game state and the number of guesses.
 
         Args:
-            guess:  A four-letter string representing a Mastermind guess (examples: "RYGB", "GGBB", "KRBW")
+            guess:  A four-letter string representing a Mastermind guess (e.g., "RYGB", "GGBB", "KRBW")
         """
 
         correct = 0
@@ -114,7 +114,7 @@ def main():
 
         # Initialize Game
         game = Game()
-        print(game.get_code())
+        # print(game.get_code())    # For testing only
 
         # Main Guessing Loop
         print("A new code has been generated. Try to guess the code!")
